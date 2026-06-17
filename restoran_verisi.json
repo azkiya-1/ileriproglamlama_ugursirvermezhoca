@@ -1,0 +1,222 @@
+{
+  "menu": [
+    {
+      "id": "C01",
+      "ad": "Mercimek Çorbası",
+      "kategori": "Çorba",
+      "fiyat": 65.0,
+      "mevcut": true
+    },
+    {
+      "id": "C02",
+      "ad": "Domates Çorbası",
+      "kategori": "Çorba",
+      "fiyat": 55.0,
+      "mevcut": true
+    },
+    {
+      "id": "C03",
+      "ad": "Ezogelin Çorbası",
+      "kategori": "Çorba",
+      "fiyat": 60.0,
+      "mevcut": true
+    },
+    {
+      "id": "D01",
+      "ad": "Meze Tabağı",
+      "kategori": "Diğer",
+      "fiyat": 120.0,
+      "mevcut": true
+    },
+    {
+      "id": "D02",
+      "ad": "Humus",
+      "kategori": "Diğer",
+      "fiyat": 90.0,
+      "mevcut": true
+    },
+    {
+      "id": "D03",
+      "ad": "Cacık",
+      "kategori": "Diğer",
+      "fiyat": 55.0,
+      "mevcut": true
+    },
+    {
+      "id": "A01",
+      "ad": "Iskender Kebap",
+      "kategori": "Ana Yemek",
+      "fiyat": 280.0,
+      "mevcut": true
+    },
+    {
+      "id": "A02",
+      "ad": "Adana Kebap",
+      "kategori": "Ana Yemek",
+      "fiyat": 260.0,
+      "mevcut": true
+    },
+    {
+      "id": "A03",
+      "ad": "Urfa Kebap",
+      "kategori": "Ana Yemek",
+      "fiyat": 255.0,
+      "mevcut": true
+    },
+    {
+      "id": "A04",
+      "ad": "Kuzu Tandır",
+      "kategori": "Ana Yemek",
+      "fiyat": 320.0,
+      "mevcut": true
+    },
+    {
+      "id": "A05",
+      "ad": "Tavuk Güveç",
+      "kategori": "Ana Yemek",
+      "fiyat": 220.0,
+      "mevcut": true
+    },
+    {
+      "id": "A06",
+      "ad": "İmam Bayıldı",
+      "kategori": "Ana Yemek",
+      "fiyat": 195.0,
+      "mevcut": true
+    },
+    {
+      "id": "T01",
+      "ad": "Baklava (por.)",
+      "kategori": "Tatlı",
+      "fiyat": 110.0,
+      "mevcut": true
+    },
+    {
+      "id": "T02",
+      "ad": "Künefe",
+      "kategori": "Tatlı",
+      "fiyat": 130.0,
+      "mevcut": true
+    },
+    {
+      "id": "T03",
+      "ad": "Sütlaç",
+      "kategori": "Tatlı",
+      "fiyat": 85.0,
+      "mevcut": true
+    },
+    {
+      "id": "I01",
+      "ad": "Çay",
+      "kategori": "İçecek",
+      "fiyat": 25.0,
+      "mevcut": true
+    },
+    {
+      "id": "I02",
+      "ad": "Türk Kahvesi",
+      "kategori": "İçecek",
+      "fiyat": 45.0,
+      "mevcut": true
+    },
+    {
+      "id": "I03",
+      "ad": "Ayran",
+      "kategori": "İçecek",
+      "fiyat": 30.0,
+      "mevcut": true
+    },
+    {
+      "id": "I04",
+      "ad": "Su (0.5L)",
+      "kategori": "İçecek",
+      "fiyat": 15.0,
+      "mevcut": true
+    },
+    {
+      "id": "I05",
+      "ad": "Limonata",
+      "kategori": "İçecek",
+      "fiyat": 55.0,
+      "mevcut": true
+    }
+  ],
+  "masalar": [
+    {
+      "numara": 1,
+      "kapasite": 2,
+      "durum": "boş",
+      "aktif_siparis_id": null
+    },
+    {
+      "numara": 2,
+      "kapasite": 2,
+      "durum": "boş",
+      "aktif_siparis_id": null
+    },
+    {
+      "numara": 3,
+      "kapasite": 4,
+      "durum": "boş",
+      "aktif_siparis_id": null
+    },
+    {
+      "numara": 4,
+      "kapasite": 4,
+      "durum": "boş",
+      "aktif_siparis_id": null
+    },
+    {
+      "numara": 5,
+      "kapasite": 4,
+      "durum": "boş",
+      "aktif_siparis_id": null
+    },
+    {
+      "numara": 6,
+      "kapasite": 4,
+      "durum": "boş",
+      "aktif_siparis_id": null
+    },
+    {
+      "numara": 7,
+      "kapasite": 6,
+      "durum": "boş",
+      "aktif_siparis_id": null
+    },
+    {
+      "numara": 8,
+      "kapasite": 6,
+      "durum": "boş",
+      "aktif_siparis_id": null
+    }
+  ],
+  "siparisler": [
+    {
+      "id": "79c4bd8a",
+      "masa_no": 1,
+      "kalemler": [
+        {
+          "menu_id": "C03",
+          "adet": 2
+        }
+      ],
+      "durum": "kapalı",
+      "acilis_zamani": "2026-06-16 23:38:33",
+      "kapanis_zamani": "2026-06-16 23:39:43"
+    },
+    {
+      "id": "5cc6d7eb",
+      "masa_no": 1,
+      "kalemler": [
+        {
+          "menu_id": "I01",
+          "adet": 1
+        }
+      ],
+      "durum": "kapalı",
+      "acilis_zamani": "2026-06-16 23:44:32",
+      "kapanis_zamani": "2026-06-16 23:46:12"
+    }
+  ]
+}
