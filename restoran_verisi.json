@@ -1,143 +1,94 @@
 {
   "menu": [
     {
-      "id": "C01",
+      "id": "c11f",
       "ad": "Mercimek Çorbası",
       "kategori": "Çorba",
       "fiyat": 65.0,
       "mevcut": true
     },
     {
-      "id": "C02",
+      "id": "4437",
       "ad": "Domates Çorbası",
       "kategori": "Çorba",
       "fiyat": 55.0,
       "mevcut": true
     },
     {
-      "id": "C03",
+      "id": "29ca",
       "ad": "Ezogelin Çorbası",
       "kategori": "Çorba",
       "fiyat": 60.0,
       "mevcut": true
     },
     {
-      "id": "D01",
-      "ad": "Meze Tabağı",
-      "kategori": "Diğer",
-      "fiyat": 120.0,
-      "mevcut": true
-    },
-    {
-      "id": "D02",
-      "ad": "Humus",
-      "kategori": "Diğer",
-      "fiyat": 90.0,
-      "mevcut": true
-    },
-    {
-      "id": "D03",
-      "ad": "Cacık",
-      "kategori": "Diğer",
-      "fiyat": 55.0,
-      "mevcut": true
-    },
-    {
-      "id": "A01",
+      "id": "4269",
       "ad": "Iskender Kebap",
       "kategori": "Ana Yemek",
-      "fiyat": 280.0,
+      "fiyat": 320.0,
       "mevcut": true
     },
     {
-      "id": "A02",
+      "id": "6615",
       "ad": "Adana Kebap",
       "kategori": "Ana Yemek",
       "fiyat": 260.0,
       "mevcut": true
     },
     {
-      "id": "A03",
+      "id": "2980",
       "ad": "Urfa Kebap",
       "kategori": "Ana Yemek",
       "fiyat": 255.0,
       "mevcut": true
     },
     {
-      "id": "A04",
+      "id": "9832",
       "ad": "Kuzu Tandır",
       "kategori": "Ana Yemek",
       "fiyat": 320.0,
       "mevcut": true
     },
     {
-      "id": "A05",
-      "ad": "Tavuk Güveç",
-      "kategori": "Ana Yemek",
-      "fiyat": 220.0,
-      "mevcut": true
-    },
-    {
-      "id": "A06",
-      "ad": "İmam Bayıldı",
-      "kategori": "Ana Yemek",
-      "fiyat": 195.0,
-      "mevcut": true
-    },
-    {
-      "id": "T01",
-      "ad": "Baklava (por.)",
-      "kategori": "Tatlı",
-      "fiyat": 110.0,
-      "mevcut": true
-    },
-    {
-      "id": "T02",
+      "id": "28d6",
       "ad": "Künefe",
       "kategori": "Tatlı",
       "fiyat": 130.0,
       "mevcut": true
     },
     {
-      "id": "T03",
+      "id": "ba91",
       "ad": "Sütlaç",
       "kategori": "Tatlı",
       "fiyat": 85.0,
       "mevcut": true
     },
     {
-      "id": "I01",
+      "id": "8759",
       "ad": "Çay",
       "kategori": "İçecek",
-      "fiyat": 20.0,
+      "fiyat": 25.0,
       "mevcut": true
     },
     {
-      "id": "I02",
+      "id": "a61e",
       "ad": "Türk Kahvesi",
       "kategori": "İçecek",
       "fiyat": 45.0,
       "mevcut": true
     },
     {
-      "id": "I03",
+      "id": "9f23",
       "ad": "Ayran",
       "kategori": "İçecek",
       "fiyat": 30.0,
       "mevcut": true
     },
     {
-      "id": "I04",
+      "id": "5cb6",
       "ad": "Su (0.5L)",
       "kategori": "İçecek",
       "fiyat": 15.0,
-      "mevcut": true
-    },
-    {
-      "id": "I05",
-      "ad": "Limonata",
-      "kategori": "İçecek",
-      "fiyat": 55.0,
       "mevcut": true
     }
   ],
@@ -145,8 +96,8 @@
     {
       "numara": 1,
       "kapasite": 2,
-      "durum": "boş",
-      "aktif_siparis_id": null
+      "durum": "dolu",
+      "aktif_siparis_id": "f0ddbfe7"
     },
     {
       "numara": 2,
@@ -193,30 +144,64 @@
   ],
   "siparisler": [
     {
-      "id": "79c4bd8a",
-      "masa_no": 1,
+      "id": "72443939",
+      "masa_no": 5,
       "kalemler": [
         {
-          "menu_id": "C03",
-          "adet": 2
-        }
-      ],
-      "durum": "kapalı",
-      "acilis_zamani": "2026-06-16 23:38:33",
-      "kapanis_zamani": "2026-06-16 23:39:43"
-    },
-    {
-      "id": "5cc6d7eb",
-      "masa_no": 1,
-      "kalemler": [
-        {
-          "menu_id": "I01",
+          "menu_id": "8759",
           "adet": 1
         }
       ],
       "durum": "kapalı",
-      "acilis_zamani": "2026-06-16 23:44:32",
-      "kapanis_zamani": "2026-06-16 23:46:12"
+      "acilis_zamani": "2026-06-23 11:13:34",
+      "kapanis_zamani": "2026-06-23 11:29:03"
+    },
+    {
+      "id": "ad9fc3bf",
+      "masa_no": 1,
+      "kalemler": [
+        {
+          "menu_id": "5cb6",
+          "adet": 1
+        }
+      ],
+      "durum": "kapalı",
+      "acilis_zamani": "2026-06-23 11:41:13",
+      "kapanis_zamani": "2026-06-23 11:42:01"
+    },
+    {
+      "id": "1d16e200",
+      "masa_no": 1,
+      "kalemler": [
+        {
+          "menu_id": "8759",
+          "adet": 2
+        },
+        {
+          "menu_id": "4269",
+          "adet": 2
+        },
+        {
+          "menu_id": "ba91",
+          "adet": 1
+        }
+      ],
+      "durum": "kapalı",
+      "acilis_zamani": "2026-06-23 11:54:18",
+      "kapanis_zamani": "2026-06-23 13:03:37"
+    },
+    {
+      "id": "f0ddbfe7",
+      "masa_no": 1,
+      "kalemler": [
+        {
+          "menu_id": "8759",
+          "adet": 1
+        }
+      ],
+      "durum": "açık",
+      "acilis_zamani": "2026-06-23 13:03:49",
+      "kapanis_zamani": null
     }
   ]
 }
