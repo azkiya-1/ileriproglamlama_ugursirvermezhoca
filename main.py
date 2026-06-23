@@ -2,7 +2,7 @@
 main.py — Ana Program
 Restoran Sipariş Sistemi — Giriş noktası.
 """
-
+import streamlit as st
 from models import MenuItem, Masa, Siparis
 from utils import (
     baslik_yazdir, bolum_yazdir,
