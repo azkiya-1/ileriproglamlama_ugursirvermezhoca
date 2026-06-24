@@ -461,8 +461,6 @@ elif secim == "➖ Kalem Çıkar":
                             f"{k.menu_kalemi.ad} siparişten kaldırıldı."
                         )
                         st.rerun()
-    else:
-        st.info("Aktif sipariş boş veya yok.")
 
 elif secim == "👀 Sipariş Görüntüle":
     st.subheader("Sipariş Görüntüle")
