@@ -418,49 +418,58 @@ elif secim == "📝 Kalem Ekle":
 elif secim == "➖ Kalem Çıkar":
     st.subheader("Kalem Çıkar")
 
-    dolu_masalar = [m.numara for m in restoran.masalar if m.durum == "dolu"]
+    masa_no = st.number_input(
+        "Masa Numarası",
+        min_value=1,
+        max_value=8,
+        value=1,
+        key="remove_masa"
+    )
 
-    if not dolu_masalar:
-        st.info("Ürün çıkarılabilecek dolu masa bulunmuyor.")
+    siparis = next(
+        (s for s in restoran.siparisler
+         if s.masa_no == masa_no and s.durum == "açık"),
+        None
+    )
 
-    else:
-        masa_no = st.selectbox(
-            "Masa Numarası",
-            dolu_masalar,
-            key="remove_masa"
+    if siparis and siparis.kalemler:
+
+        urunler = {
+            f"{k.menu_kalemi.ad} ({k.adet} adet)": k
+            for k in siparis.kalemler
+        }
+
+        secilen = st.selectbox(
+            "Çıkarılacak Ürün",
+            list(urunler.keys())
         )
 
-        siparis = restoran._aktif_siparis(masa_no)
+        secilen_kalem = urunler[secilen]
 
-        if not siparis:
-            st.error("Seçilen masanın açık siparişi yok.")
+        adet = st.number_input(
+            "Çıkarılacak Adet",
+            min_value=1,
+            max_value=secilen_kalem.adet,
+            value=1
+        )
 
-        elif not siparis.kalemler:
-            st.info("Bu masada sipariş kalemi bulunmuyor.")
+        if st.button("Çıkar"):
 
-        else:
-            st.write("### Mevcut Sipariş Kalemleri")
+            siparis.kalem_kaldir(
+                secilen_kalem.menu_kalemi.id,
+                adet
+            )
 
-            for i, k in enumerate(siparis.kalemler):
-                col1, col2 = st.columns([4, 1])
+            kaydet()
 
-                with col1:
-                    st.write(f"🍽️ {k.menu_kalemi.ad} x{k.adet}")
+            st.success(
+                f"{adet} adet {secilen_kalem.menu_kalemi.ad} çıkarıldı."
+            )
 
-                with col2:
-                    if st.button(
-                        "Sil",
-                        key=f"del_{masa_no}_{i}"
-                    ):
-                        restoran.kalem_kaldir(
-                            masa_no,
-                            k.menu_kalemi.id
-                        )
+            st.rerun()
 
-                        st.success(
-                            f"{k.menu_kalemi.ad} siparişten kaldırıldı."
-                        )
-                        st.rerun()
+    else:
+        st.info("Aktif sipariş boş veya yok.")
 
 elif secim == "👀 Sipariş Görüntüle":
     st.subheader("Sipariş Görüntüle")
