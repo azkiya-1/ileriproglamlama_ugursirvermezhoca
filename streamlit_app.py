@@ -417,32 +417,52 @@ elif secim == "📝 Kalem Ekle":
 
 elif secim == "➖ Kalem Çıkar":
     st.subheader("Kalem Çıkar")
-    dolu_masalar = [m.numara for m in restoran.masalar if m.durum == "dolu"]
-        if not dolu_masalar:
-            st.info("Ürün çıkarılabilecek dolu masa bulunmuyor.")
-        else:
-            masa_no = st.selectbox("Masa Numarası", dolu_masalar)
-            siparis = restoran._aktif_siparis(masa_no)
-            if not siparis:
-                st.error("Seçilen masanın açık siparişi yok.")
-            else:
-                st.write("\nMevcut sipariş kalemleri:")
-                for k in siparis.kalemler:
-                    st.write(f"- {k.menu_kalemi.ad} x{k.adet}")
 
-                kalem_ids = [k.menu_kalemi.id for k in siparis.kalemler]
-                silinecek = st.selectbox("Çıkarılacak ürün", kalem_ids)
-                adet_str = st.text_input("Çıkarılacak adet (boş bırakılırsa tümü silinir)")
-                if st.button("Çıkar"):
-                    adet = None
-                    if adet_str.strip():
-                        try:
-                            adet = int(adet_str)
-                        except ValueError:
-                            st.error("Geçersiz adet değeri.")
-                            st.stop()
-                    restoran.kalem_kaldir(masa_no, silinecek, adet)
-                    st.rerun()
+    dolu_masalar = [m.numara for m in restoran.masalar if m.durum == "dolu"]
+
+    if not dolu_masalar:
+        st.info("Ürün çıkarılabilecek dolu masa bulunmuyor.")
+
+    else:
+        masa_no = st.selectbox(
+            "Masa Numarası",
+            dolu_masalar,
+            key="remove_masa"
+        )
+
+        siparis = restoran._aktif_siparis(masa_no)
+
+        if not siparis:
+            st.error("Seçilen masanın açık siparişi yok.")
+
+        elif not siparis.kalemler:
+            st.info("Bu masada sipariş kalemi bulunmuyor.")
+
+        else:
+            st.write("### Mevcut Sipariş Kalemleri")
+
+            for i, k in enumerate(siparis.kalemler):
+                col1, col2 = st.columns([4, 1])
+
+                with col1:
+                    st.write(f"🍽️ {k.menu_kalemi.ad} x{k.adet}")
+
+                with col2:
+                    if st.button(
+                        "Sil",
+                        key=f"del_{masa_no}_{i}"
+                    ):
+                        restoran.kalem_kaldir(
+                            masa_no,
+                            k.menu_kalemi.id
+                        )
+
+                        st.success(
+                            f"{k.menu_kalemi.ad} siparişten kaldırıldı."
+                        )
+                        st.rerun()
+    else:
+        st.info("Aktif sipariş boş veya yok.")
 
 elif secim == "👀 Sipariş Görüntüle":
     st.subheader("Sipariş Görüntüle")
