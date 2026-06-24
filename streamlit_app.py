@@ -6,7 +6,6 @@ import json
 import os
 from typing import List, Dict, Optional
 
-# ========================= UTILS =========================
 VERI_DOSYASI = "restoran_verisi.json"
 AYIRICI_INCE = "─" * 50
 
@@ -30,156 +29,243 @@ def veri_kaydet(veri: dict, dosya: str) -> bool:
     except:
         return False
 
-# ========================= MODELS =========================
 class MenuItem:
-    def __init__(self, ad: str, kategori: str, fiyat: float):
-        self.id = f"{str(uuid.uuid4())[:4].upper()}"
-        self.ad = ad
-        self.kategori = kategori
-        self.fiyat = fiyat
-        self.mevcut = True
+    """
+    Menüdeki bir ürünü temsil eder.
 
-    @classmethod
-    def from_dict(cls, data: dict):
-        item = cls(data["ad"], data["kategori"], data["fiyat"])
-        item.id = data.get("id", item.id)
-        item.mevcut = data.get("mevcut", True)
-        return item
+    Attributes:
+        id       : Otomatik üretilen benzersiz kimlik (4 karakter)
+        ad       : Ürün adı
+        kategori : Ürün kategorisi (Çorba, Ana Yemek, Tatlı vb.)
+        fiyat    : KDV dahil birim fiyat (₺)
+        mevcut   : False ise menüde gösterilmez / sipariş alınamaz
+    """
 
-    def to_dict(self):
+    def __init__(self, ad: str, kategori: str, fiyat: float,
+                 item_id: str = None):
+        self.id: str = item_id or str(uuid.uuid4())[:4]
+        self.ad: str = ad
+        self.kategori: str = kategori
+        self.fiyat: float = fiyat
+        self.mevcut: bool = True
+
+    # ── Serileştirme ──────────────────────────────────────────
+
+    def to_dict(self) -> dict:
         return {
-            "id": self.id,
-            "ad": self.ad,
+            "id":       self.id,
+            "ad":       self.ad,
             "kategori": self.kategori,
-            "fiyat": self.fiyat,
-            "mevcut": self.mevcut
+            "fiyat":    self.fiyat,
+            "mevcut":   self.mevcut,
         }
-
-class Masa:
-    def __init__(self, numara: int, kapasite: int):
-        self.numara = numara
-        self.kapasite = kapasite
-        self.durum = "boş"
-        self.aktif_siparis_id = None
 
     @classmethod
-    def from_dict(cls, data: dict):
-        masa = cls(data["numara"], data["kapasite"])
-        masa.durum = data.get("durum", "boş")
-        masa.aktif_siparis_id = data.get("aktif_siparis_id")
-        return masa
+    def from_dict(cls, veri: dict) -> "MenuItem":
+        kalem = cls(veri["ad"], veri["kategori"], veri["fiyat"], veri["id"])
+        kalem.mevcut = veri.get("mevcut", True)
+        return kalem
 
-    def to_dict(self):
-        return {
-            "numara": self.numara,
-            "kapasite": self.kapasite,
-            "durum": self.durum,
-            "aktif_siparis_id": self.aktif_siparis_id
-        }
+    def __str__(self) -> str:
+        durum = "v" if self.mevcut else "x"
+        return (f"[{durum}] {self.id:<10} {self.ad:<28} "
+                f"{self.kategori:<15} {self.fiyat:.2f} ₺")
 
-    def doldur(self, siparis_id: str):
-        self.durum = "dolu"
-        self.aktif_siparis_id = siparis_id
 
-    def bosalt(self):
-        self.durum = "boş"
-        self.aktif_siparis_id = None
+# ─────────────────────────────────────────────────────────────────────────────
+
 
 class SiparisKalemi:
-    def __init__(self, menu_kalemi: MenuItem, adet: int):
-        self.menu_kalemi = menu_kalemi
-        self.adet = adet
+    """
+    Bir siparişe eklenen tek bir kalem (ürün + adet çifti).
+
+    Attributes:
+        menu_kalemi : İlgili MenuItem nesnesi
+        adet        : Kaç adet sipariş edildiği >= 1)
+    """
+
+    def __init__(self, menu_kalemi: MenuItem, adet: int = 1):
+        self.menu_kalemi: MenuItem = menu_kalemi
+        self.adet: int = adet
 
     @property
-    def toplam(self):
+    def toplam(self) -> float:
+        """Bu kalemin toplam tutarı (birim fiyat x adet)."""
         return self.menu_kalemi.fiyat * self.adet
 
-    def to_dict(self):
-        return {
-            "menu_id": self.menu_kalemi.id,
-            "adet": self.adet
-        }
+    # ── Serileştirme ──────────────────────────────────────────
+
+    def to_dict(self) -> dict:
+        return {"menu_id": self.menu_kalemi.id, "adet": self.adet}
+
+    def __str__(self) -> str:
+        return (f"  {self.menu_kalemi.ad:<28} x{self.adet:<3} "
+                f"{self.toplam:>10.2f} ₺")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+
 
 class Siparis:
-    def __init__(self, masa_no: int):
-        self.id = f"ORD-{datetime.now().strftime('%Y%m%d')}-{str(uuid.uuid4())[:6].upper()}"
-        self.masa_no = masa_no
-        self.kalemler: List[SiparisKalemi] = []
-        self.durum = "açık"
-        self.acilis_zamani = datetime.now().strftime("%d.%m.%Y %H:%M")
-        self.kapanis_zamani = None
 
-    @classmethod
-    def from_dict(cls, data: dict, menu: List[MenuItem]):
-        siparis = cls(data["masa_no"])
-        siparis.id = data["id"]
-        siparis.durum = data.get("durum", "açık")
-        siparis.acilis_zamani = data.get("acilis_zamani")
-        siparis.kapanis_zamani = data.get("kapanis_zamani")
+    KDV_ORANI = 0.10   # %10
 
-        menu_dict = {m.id: m for m in menu}
-        for k in data.get("kalemler", []):
-            menu_item = menu_dict.get(k["menu_id"])
-            if menu_item:
-                kalem = SiparisKalemi(menu_item, k["adet"])
-                siparis.kalemler.append(kalem)
-        return siparis
+    def __init__(self, masa_no: int, siparis_id: str = None):
+        self.id: str = siparis_id or str(uuid.uuid4())[:8]
+        self.masa_no: int = masa_no
+        self.kalemler: list[SiparisKalemi] = []
+        self.durum: str = "açık"
+        self.acilis_zamani: str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.kapanis_zamani: str | None = None
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "masa_no": self.masa_no,
-            "durum": self.durum,
-            "acilis_zamani": self.acilis_zamani,
-            "kapanis_zamani": self.kapanis_zamani,
-            "kalemler": [k.to_dict() for k in self.kalemler]
-        }
+    # ── Kalem İşlemleri ───────────────────────────────────────
 
-    @property
-    def ara_toplam(self):
-        return sum(k.toplam for k in self.kalemler)
-
-    @property
-    def kdv(self):
-        return self.ara_toplam * 0.10
-
-    @property
-    def genel_toplam(self):
-        return self.ara_toplam + self.kdv
-
-    def kalem_ekle(self, menu_kalemi: MenuItem, adet: int):
+    def kalem_ekle(self, menu_kalemi: MenuItem, adet: int = 1) -> None:
+        """
+        Siparişe kalem ekler.
+        Aynı ürün zaten varsa adetini artırır; yoksa yeni kalem oluşturur.
+        """
         for k in self.kalemler:
             if k.menu_kalemi.id == menu_kalemi.id:
                 k.adet += adet
                 return
         self.kalemler.append(SiparisKalemi(menu_kalemi, adet))
 
-    def kalem_kaldir(self, menu_id: str, adet: Optional[int] = None) -> bool:
+    def kalem_kaldir(self, menu_id: str, adet: int | None = None) -> bool:
+        """
+        Belirtilen menu_id'ye sahip kalemden adet kadar çıkarır.
+        """
         for i, k in enumerate(self.kalemler):
             if k.menu_kalemi.id == menu_id:
                 if adet is None or adet >= k.adet:
-                    del self.kalemler[i]
+                    self.kalemler.pop(i)
                 else:
                     k.adet -= adet
                 return True
         return False
 
-    def kapat(self):
-        self.durum = "kapalı"
-        self.kapanis_zamani = datetime.now().strftime("%d.%m.%Y %H:%M")
+    # ── Tutar Hesaplamaları ───────────────────────────────────
 
-# ========================= STREAMLIT APP =========================
+    @property
+    def ara_toplam(self) -> float:
+        """toplam."""
+        return sum(k.toplam for k in self.kalemler)
+    
+    @property
+    def kdv(self) -> float:
+        """Hesaplanan KDV tutarı."""
+        return self.ara_toplam * self.KDV_ORANI
+    
+    @property
+    def açıklama(self) -> float:
+        """KDV hariç tutar"""
+        return self.ara_toplam - self.kdv
+
+    @property
+    def genel_toplam(self) -> float:
+        """KDV dahil ödenecek tutar."""
+        return self.ara_toplam
+
+    # ── Durum Yönetimi ────────────────────────────────────────
+
+    def kapat(self) -> None:
+        """Siparişi kapatır ve kapanış zamanını kaydeder."""
+        self.durum = "kapalı"
+        self.kapanis_zamani = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # ── Serileştirme ──────────────────────────────────────────
+
+    def to_dict(self) -> dict:
+        return {
+            "id":             self.id,
+            "masa_no":        self.masa_no,
+            "kalemler":       [k.to_dict() for k in self.kalemler],
+            "durum":          self.durum,
+            "acilis_zamani":  self.acilis_zamani,
+            "kapanis_zamani": self.kapanis_zamani,
+        }
+
+    @classmethod
+    def from_dict(cls, veri: dict, menu_listesi: list) -> "Siparis":
+        siparis = cls(veri["masa_no"], veri["id"])
+        siparis.durum = veri["durum"]
+        siparis.acilis_zamani = veri["acilis_zamani"]
+        siparis.kapanis_zamani = veri.get("kapanis_zamani")
+
+        menu_map = {m.id: m for m in menu_listesi}
+        for k_veri in veri.get("kalemler", []):
+            if k_veri["menu_id"] in menu_map:
+                siparis.kalemler.append(
+                    SiparisKalemi(menu_map[k_veri["menu_id"]], k_veri["adet"])
+                )
+        return siparis
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class Masa:
+    """
+    Restorandaki fiziksel bir masayı temsil eder.
+
+    Attributes:
+        numara           : Masa numarası (benzersiz)
+        kapasite         : Maksimum oturabilecek kişi sayısı
+        durum            : 'boş' | 'dolu' | 'rezerveli'
+        aktif_siparis_id : Masa doluyken açık siparişin ID'si
+    """
+
+    GECERLI_DURUMLAR = frozenset({"boş", "dolu", "rezerveli"})
+
+    def __init__(self, numara: int, kapasite: int = 4):
+        self.numara: int = numara
+        self.kapasite: int = kapasite
+        self.durum: str = "boş"
+        self.aktif_siparis_id: str | None = None
+
+    # ── Durum Yönetimi ────────────────────────────────────────
+
+    def doldur(self, siparis_id: str) -> None:
+        """Masayı dolu olarak işaretler ve siparişle ilişkilendirir."""
+        self.durum = "dolu"
+        self.aktif_siparis_id = siparis_id
+
+    def bosalt(self) -> None:
+        """Masayı boşaltır, sipariş bağlantısını kaldırır."""
+        self.durum = "boş"
+        self.aktif_siparis_id = None
+
+    # ── Serileştirme ──────────────────────────────────────────
+
+    def to_dict(self) -> dict:
+        return {
+            "numara":           self.numara,
+            "kapasite":         self.kapasite,
+            "durum":            self.durum,
+            "aktif_siparis_id": self.aktif_siparis_id,
+        }
+
+    @classmethod
+    def from_dict(cls, veri: dict) -> "Masa":
+        masa = cls(veri["numara"], veri["kapasite"])
+        masa.durum = veri.get("durum", "boş")
+        masa.aktif_siparis_id = veri.get("aktif_siparis_id")
+        return masa
+
+    def __str__(self) -> str:
+        simge = {"boş": "○", "dolu": "●", "rezerveli": "◎"}.get(self.durum, "?")
+        sid = self.aktif_siparis_id or "—"
+        return (f"  Masa {self.numara:>2}  {simge} {self.durum:<10} "
+                f" {self.kapasite} kişilik   sipariş: {sid}")
 st.set_page_config(page_title="Ana Mutfak POS", layout="wide", page_icon="🍽️")
 
-# Inisialisasi Restoran di Session State
 if 'restoran' not in st.session_state:
-    restoran = type('Restoran', (), {})()  # Dummy class dulu
+    restoran = type('Restoran', (), {})() 
     restoran.ad = "Ana Mutfak"
     restoran.menu: List[MenuItem] = []
     restoran.masalar: List[Masa] = []
     restoran.siparisler: List[Siparis] = []
 
-    # Load data
     veri = veri_yukle(VERI_DOSYASI)
     if veri:
         restoran.menu = [MenuItem.from_dict(m) for m in veri.get("menu", [])]
@@ -188,7 +274,6 @@ if 'restoran' not in st.session_state:
             Siparis.from_dict(s, restoran.menu) for s in veri.get("siparisler", [])
         ]
     else:
-        # Buat data default
         ornek_menu = [
             ("Mercimek Çorbası", "Çorba", 65.00), ("Domates Çorbası", "Çorba", 55.00),
             ("Ezogelin Çorbası", "Çorba", 60.00), ("Iskender Kebap", "Ana Yemek", 280.00),
@@ -205,7 +290,6 @@ if 'restoran' not in st.session_state:
             kapasite = 2 if i <= 2 else (6 if i >= 7 else 4)
             restoran.masalar.append(Masa(i, kapasite))
 
-        # Save initial data
         veri = {
             "menu": [m.to_dict() for m in restoran.menu],
             "masalar": [m.to_dict() for m in restoran.masalar],
@@ -378,7 +462,7 @@ elif secim == "💰 Hesap Kes":
         } for k in siparis.kalemler])
         st.dataframe(df, use_container_width=True, hide_index=True)
 
-        st.metric("Ara Toplam", para_formatla(siparis.ara_toplam))
+        st.metric("Ara Toplam", para_formatla(siparis.açıklama))
         st.metric("KDV %10", para_formatla(siparis.kdv))
         st.metric("**GENEL TOPLAM**", para_formatla(siparis.genel_toplam), delta="KDV Dahil")
 
