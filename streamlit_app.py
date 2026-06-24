@@ -417,18 +417,32 @@ elif secim == "📝 Kalem Ekle":
 
 elif secim == "➖ Kalem Çıkar":
     st.subheader("Kalem Çıkar")
-    masa_no = st.number_input("Masa Numarası", min_value=1, max_value=8, value=1, key="remove_masa")
-    siparis = next((s for s in restoran.siparisler if s.masa_no == masa_no and s.durum == "açık"), None)
+    dolu_masalar = [m.numara for m in restoran.masalar if m.durum == "dolu"]
+        if not dolu_masalar:
+            st.info("Ürün çıkarılabilecek dolu masa bulunmuyor.")
+        else:
+            masa_no = st.selectbox("Masa Numarası", dolu_masalar)
+            siparis = restoran._aktif_siparis(masa_no)
+            if not siparis:
+                st.error("Seçilen masanın açık siparişi yok.")
+            else:
+                st.write("\nMevcut sipariş kalemleri:")
+                for k in siparis.kalemler:
+                    st.write(f"- {k.menu_kalemi.ad} x{k.adet}")
 
-    if siparis and siparis.kalemler:
-        for i, k in enumerate(siparis.kalemler):
-            if st.button(f"Sil: {k.menu_kalemi.ad} ({k.adet} adet)", key=f"del_{i}"):
-                siparis.kalem_kaldir(k.menu_kalemi.id)
-                kaydet()
-                st.success("Kalem silindi")
-                st.rerun()
-    else:
-        st.info("Aktif sipariş boş veya yok.")
+                kalem_ids = [k.menu_kalemi.id for k in siparis.kalemler]
+                silinecek = st.selectbox("Çıkarılacak ürün", kalem_ids)
+                adet_str = st.text_input("Çıkarılacak adet (boş bırakılırsa tümü silinir)")
+                if st.button("Çıkar"):
+                    adet = None
+                    if adet_str.strip():
+                        try:
+                            adet = int(adet_str)
+                        except ValueError:
+                            st.error("Geçersiz adet değeri.")
+                            st.stop()
+                    restoran.kalem_kaldir(masa_no, silinecek, adet)
+                    st.rerun()
 
 elif secim == "👀 Sipariş Görüntüle":
     st.subheader("Sipariş Görüntüle")
